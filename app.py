@@ -2,10 +2,15 @@ import streamlit as st
 import google.generativeai as genai
 import json
 import os
-from dotenv import load_dotenv
+
 import PyPDF2
 
-load_dotenv() 
+try:
+    api_key = st.secrets["GEM_API_KEY"]
+    genai.configure(api_key=api_key)
+except KeyError:
+    st.error("Authentication Error: GEMINI_API_KEY is missing from Streamlit Secrets.")
+    st.stop()
 
 st.set_page_config(page_title="AI Candidate Evaluator", layout="wide")
 
@@ -52,8 +57,6 @@ with col2:
         else:
             with st.spinner("AI is extracting skills and calculating fit..."):
                 try:
-                    # Configure Gemini API
-                    genai.configure(api_key = os.getenv("GEM_API_KEY"))
                     
                     # Force the model to return a JSON object
                     model = genai.GenerativeModel(
